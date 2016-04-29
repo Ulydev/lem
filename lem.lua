@@ -40,13 +40,31 @@ end
 function lem:on(eventname, callback)
   if not self:eventExists(eventname) then self:initHandlers(eventname) end
   self:registerHandler(eventname, callback)
+  return self
 end
 
 function lem:emit(eventname, params)
-  if not self:eventExists(eventname) then return false end
-  for k, v in pairs(self.handlers[eventname]) do --v = callback
+  if not self:eventExists(eventname) then return self end
+  for k, v in pairs(self:getHandlers(eventname)) do --v = callback
     v(params)
   end
+  return self
+end
+
+function lem:remove(eventname, callback)
+  if not self:eventExists(eventname) then return self end
+  for k, v in pairs(self:getHandlers(eventname)) do
+    if v == callback then
+      self.handlers[eventname][k] = nil
+    end
+  end
+  return self
+end
+
+function lem:reset(eventname)
+  if not self:eventExists(eventname) then return self end
+  self:initHandlers(eventname)
+  return self
 end
 
 function lem:getListenerCount(eventname)
@@ -56,6 +74,8 @@ end
 --[[ Aliases ]]--
 
 function lem:addListener(...) return self:on(...) end
+function lem:removeListener(...) return self:remove(...) end
+function lem:removeListeners(...) return self:reset(...) end
 
 --[[ End ]]--
 
