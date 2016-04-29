@@ -17,6 +17,16 @@ function lem:new()
   return _manager
 end
 
+--[[ Private ]]--
+
+function lem:eventExists(eventname)
+  return self.handlers[eventname] and true or false
+end
+
+function lem:getHandlers(eventname)
+  return self.handlers[eventname]
+end
+
 function lem:initHandlers(eventname)
   self.handlers[eventname] = {}
 end
@@ -25,16 +35,28 @@ function lem:registerHandler(eventname, callback)
   table.insert(self.handlers[eventname], callback)
 end
 
+--[[ Public ]]--
+
 function lem:on(eventname, callback)
-  if not self.handlers[eventname] then self:initHandlers(eventname) end
+  if not self:eventExists(eventname) then self:initHandlers(eventname) end
   self:registerHandler(eventname, callback)
 end
 
 function lem:emit(eventname, params)
-  if not self.handlers[eventname] then return false end
+  if not self:eventExists(eventname) then return false end
   for k, v in pairs(self.handlers[eventname]) do --v = callback
     v(params)
   end
 end
+
+function lem:getListenerCount(eventname)
+  return (self:eventExists(eventname) and #self:getHandlers(eventname) or -1)
+end
+
+--[[ Aliases ]]--
+
+function lem:addListener(...) return self:on(...) end
+
+--[[ End ]]--
 
 return lem
