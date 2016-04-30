@@ -53,8 +53,9 @@ end
 
 function lem:remove(eventname, callback)
   if not self:eventExists(eventname) then return self end
+  local callbackString = string.dump(callback)
   for k, v in pairs(self:getHandlers(eventname)) do
-    if v == callback then
+    if string.dump(v) == callbackString then
       self.handlers[eventname][k] = nil
     end
   end
